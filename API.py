@@ -3,6 +3,7 @@ import sqlite3
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import uvicorn
+import os
 
 """
 Faites l'API avec les "endpoints" suivants :
@@ -23,13 +24,16 @@ Faites l'API avec les "endpoints" suivants :
 
 # Votre code ici...
 
+print("Répertoire courant :", os.getcwd())
 
 app = FastAPI()
+
+database = './database.db'
 
 '''Partie GET'''
 @app.get('/utilisateurs')
 async def utilisateurs():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM utilisateurs")
     utilisateurs = cursor.fetchall()
@@ -38,7 +42,7 @@ async def utilisateurs():
 
 @app.get('/livres')
 async def livres():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM livres")
     livres = cursor.fetchall()
@@ -47,7 +51,7 @@ async def livres():
 
 @app.get('/auteurs')
 async def auteurs():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM auteurs")
     auteurs = cursor.fetchall()
@@ -56,7 +60,7 @@ async def auteurs():
 
 @app.get('/utilisateur/{utilisateur}')
 async def utilisateur_var(utilisateur: str):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
     if utilisateur.isdigit():
@@ -76,7 +80,7 @@ async def utilisateur_var(utilisateur: str):
 
 @app.get('/utilisateur/emprunts/{utilisateur}')
 async def utilisateur_emprunts_var(utilisateur: str):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
     if utilisateur.isdigit():
@@ -102,7 +106,7 @@ async def livres_siecle_var(numero: int):
     if 0 <= numero <= 21:
         start_date = (numero - 1) * 100
         end_date = numero * 100 + 99
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect(database)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM livres WHERE date_public BETWEEN ? AND ?", (start_date, end_date))
         livres = cursor.fetchall()
@@ -119,7 +123,7 @@ async def livres_ajouter(request: Request):
     if not book or not 'titre' in book:
         raise HTTPException(status_code=400, detail="Data invalide : demande un format JSON et le titre")
 
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
     cursor.execute("SELECT id FROM auteurs WHERE nom_auteur = ?", (book['nom_auteur'],))
@@ -145,7 +149,7 @@ async def utilisateur_ajouter(request: Request):
     if not user or not 'nom' in user or not 'email' in user:
         raise HTTPException(status_code=400, detail="Data invalide : demande un format JSON, le nom et l'email")
 
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO utilisateurs (nom, email) VALUES (?, ?)", (user['nom'], user['email']))
     conn.commit()
@@ -155,7 +159,7 @@ async def utilisateur_ajouter(request: Request):
 '''Partie DELETE'''
 @app.delete('/utilisateur/{utilisateur}/supprimer')
 async def utilisateur_var_supprimer(utilisateur: str):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM utilisateurs WHERE id = ? OR nom = ?", (utilisateur, utilisateur))
@@ -170,7 +174,7 @@ async def utilisateur_var_supprimer(utilisateur: str):
 '''Partie PUT'''
 @app.put('/utilisateur/{utilisateur_id}/emprunter/{livre_id}')
 async def utilisateur_var_emprunter_var(utilisateur_id: int, livre_id: int):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("UPDATE livres SET emprunteur_id = ? WHERE id = ?", (utilisateur_id, livre_id))
     if cursor.rowcount == 0:
@@ -182,7 +186,7 @@ async def utilisateur_var_emprunter_var(utilisateur_id: int, livre_id: int):
 
 @app.put('/utilisateur/{utilisateur_id}/rendre/{livre_id}')
 async def utilisateur_var_rendre_var(utilisateur_id: int, livre_id: int):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("UPDATE livres SET emprunteur_id = NULL WHERE id = ? AND emprunteur_id = ?", (livre_id, utilisateur_id))
     if cursor.rowcount == 0:

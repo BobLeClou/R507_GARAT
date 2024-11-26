@@ -1,21 +1,26 @@
 import requests
 from flask import Flask, abort, render_template, request
 
-app_flask = Flask(__name__)
+app = Flask(__name__)
 
-@app_flask.route('/accueil')
+@app.route('/')
+def index():
+    return render_template('index.j2')
+
+
+@app.route('/accueil')
 def accueil():
     return render_template('accueil.j2')
 
-@app_flask.route('/emprunts')
+@app.route('/emprunts')
 def emprunts():
     return render_template('emprunts.j2')
 
-@app_flask.route('/livres')
+@app.route('/livres')
 def livres():
     return render_template('livres.j2')
 
-@app_flask.route('/resultats', methods=["GET", "POST"], endpoint='resultats')
+@app.route('/resultats', methods=["GET", "POST"], endpoint='resultats')
 def resultats():
     utilisateur = request.form.get("utilisateur")
     livre = request.form.get("livres")
@@ -38,4 +43,4 @@ def resultats():
         url_livre = f'http://127.0.0.1:5001/utilisateur/emprunts/{utilisateur}'
 
 if __name__ == '__main__':
-    app_flask.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

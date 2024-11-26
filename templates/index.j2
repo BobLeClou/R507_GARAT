@@ -1,83 +1,14 @@
+{% import "utils.j2" as utils %}
+
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Exos Flask</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <h1>Exos Flask</h1>
-    <h2>Routes</h2>
-    <ul>
-        <li><a href="{{ url_for('lettre') }}">/lettres</a></li>
-        <li><a href="{{ url_for('mot', letters='') }}">/mots</a></li>
-        <li><a href="{{ url_for('usage') }}">/usage</a></li>
-    </ul>
-
-    <h2>Formulaire</h2>
-    <form action="{{ url_for('resultat') }}" method="get">
-        <label for="pseudo">Pseudo:</label>
-        <input type="text" name="pseudo" id="pseudo" required>
-
-        <label for="option">Option:</label>
-        <select name="option" id="option">
-            <option value="Cyber">Cyber</option>
-            <option value="DevCloud">DevCloud</option>
-            <option value="Pilpro">Pilpro</option>
-        </select>
-
-        <button type="submit">Envoyer</button>
-    </form>
-
-    <h2>Inscription</h2>
-    <form action="{{ url_for('resultat') }}" method="post">
-        <label for="pseudo">Pseudo:</label>
-        <input type="text" name="pseudo" id="pseudo" required>
-
-        <label for="option">Option:</label>
-        <select name="option" id="option">
-            <option value="Cyber">Cyber</option>
-            <option value="DevCloud">DevCloud</option>
-            <option value="Pilpro">Pilpro</option>
-        </select>
-
-        <label for="nom">Nom:</label>
-        <input type="text" name="nom" id="nom" required>
-
-        <label for="prenom">Prénom:</label>
-        <input type="text" name="prenom" id="prenom" required>
-
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required>
-
-        <button type="submit">Inscription</button>
-    </form>
-
-
-    <h2>jinja_mot</h2>
-    <form action="{{ url_for('jinja_mots') }}" method="get">
-        <label for="pseudo">Lettre rechercher :</label>
-        <input type="text" name="letter" id="letter" required>
-
-        <button type="submit">rechercher</button>
-    </form>
-
-
-    <h2>jinja_lettre</h2>
-    <form action="{{ url_for('jinja_lettres') }}" method="get">
-        <label for="pseudo">Lettres rechercher :</label>
-        <input type="text" name="letter" id="letter" required>
-
-        <button type="submit">rechercher</button>
-    </form>
-
-    <h2>jinja_lettre_scrabble</h2>
-    <form action="{{ url_for('jinja_lettres') }}" method="get">
-        <label for="pseudo">Lettres rechercher :</label>
-        <input type="text" name="letters" id="letters" required>
-
-        <button type="submit">rechercher</button>
-    </form>
-
-    
+    {{ utils.header("test","test2") }}
+    <!-- Add your content here -->
 </body>
 </html>

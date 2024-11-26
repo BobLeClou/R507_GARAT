@@ -1,0 +1,37 @@
+{# Macro for a reusable Bootstrap navbar #}
+{% macro navbar(brand, links) %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">{{ brand }}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            {% for link in links %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ link.href }}">{{ link.text }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</nav>
+{% endmacro %}
+
+{# Macro for a reusable header block #}
+{% macro header(title, subtitle) %}
+<header class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <p class="lead">{{ subtitle }}</p>
+    </div>
+</header>
+{% endmacro %}
+
+{# Macro for a reusable footer block #}
+{% macro footer(text) %}
+<footer class="bg-light text-center py-4">
+    <div class="container">
+        <p class="text-muted">{{ text }}</p>
+    </div>
+</footer>
+{% endmacro %}
