@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire</title>
+</head>
+<body>
+    <h1>Formulaire</h1>
+    <form action="{{ url_for('resultats') }}" method="POST">
+        <div>
+            <label for="utilisateur">Utilisateur:</label>
+            <input type="text" id="utilisateur" name="utilisateur">
+            <button type="submit" name="action" value="submit_utilisateur">Submit Utilisateur</button>
+        </div>
+        <div>
+            <label for="livre">Livre:</label>
+            <input type="text" id="livre" name="livre">
+            <button type="submit" name="action" value="submit_livre">Submit Livre</button>
+        </div>
+    </form>
+</body>
+</html>

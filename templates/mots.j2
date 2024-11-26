@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Exos Flask</title>
+    </head>
+
+    <body>
+        <textarea style="width: 300px; height: 200px; overflow-y: scroll;" readonly>
+            {% for each in mots %}
+                {{ each }}
+            {% endfor %}
+        </textarea>
+        <br>
+        <a href={{ url_for('index') }}>Retour</a>
+    </body>
+</html>
