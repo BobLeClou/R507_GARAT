@@ -20,6 +20,17 @@ def emprunts():
 def livres():
     return render_template('livres.j2')
 
+@app.route('/rechercher', methods=['GET'])
+def rechercher():
+    
+    variable = request.args.get('type')
+
+    url = f'http://127.0.0.1:5001/{variable}'
+    response = requests.get(url)
+    return render_template('rechercher.j2', name="livre", result=response.json())
+       
+
+
 @app.route('/resultats', methods=["GET", "POST"], endpoint='resultats')
 def resultats():
     utilisateur = request.form.get("utilisateur")
