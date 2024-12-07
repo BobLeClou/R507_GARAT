@@ -3,7 +3,6 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt import encode, decode, PyJWTError as JWTError
 import jwt
 from datetime import datetime, timedelta
-import sqlite3
 
 
 # Configuration
