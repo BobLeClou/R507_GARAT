@@ -1,37 +1,36 @@
 import requests
-from flask import Flask, abort, render_template, request
+from flask import Flask, abort, redirect, render_template, request, session
 
 app = Flask(__name__)
+app.secret_key = "mon_secret"
 
 @app.route('/')
 def index():
+
+    headers = get_auth_headers()
+    if not headers:
+        return redirect("/login")
+    
     return render_template('index.j2')
-
-
-@app.route('/accueil')
-def accueil():
-    return render_template('accueil.j2')
-
-@app.route('/emprunts')
-def emprunts():
-    return render_template('emprunts.j2')
-
-@app.route('/livres')
-def livres():
-    return render_template('livres.j2')
 
 @app.route('/rechercher', methods=['GET'])
 def rechercher():
-    
+    headers = get_auth_headers()
+    if not headers:
+        return redirect("/login")
+
     variable = request.args.get('type')
 
     url = f'http://127.0.0.1:5001/{variable}'
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
     return render_template('rechercher.j2', name=variable, result=response.json())
        
 @app.route("/ajouter", methods=["GET", "POST"])
 def ajouter():
     
+    headers = get_auth_headers()
+    if not headers:
+        return redirect("/login")
 
     if request.method == "GET":
         variable = request.args.get('type')
@@ -55,7 +54,7 @@ def ajouter():
                 "email": email
             }
             # Effectuer une requête POST
-            response = requests.post(url, json=data)
+            response = requests.post(url, json=data, headers=headers)
 
             # Vérifier la réponse de l'API
             if response.status_code == 201:
@@ -79,7 +78,7 @@ def ajouter():
             }
 
             # Envoyer les données via une requête POST
-            response = requests.post(url, json=livre_data)
+            response = requests.post(url, json=livre_data, headers=headers)
 
             # Gérer la réponse
             if response.status_code == 201:
@@ -95,6 +94,11 @@ def ajouter():
 
 @app.route('/resultats', methods=["GET", "POST"], endpoint='resultats')
 def resultats():
+
+    headers = get_auth_headers()
+    if not headers:
+        return redirect("/login")
+    
     utilisateur = request.form.get("utilisateur")
     livre = request.form.get("livres")
 
@@ -102,7 +106,7 @@ def resultats():
         url_utilisateur = f'http://127.0.0.1:5001/utilisateur/emprunts/{utilisateur}'
 
         try:
-            response = requests.get(url_utilisateur)
+            response = requests.get(url_utilisateur, headers=headers)
 
             if response.status_code == 200:
                 emprunt = response.json()
@@ -115,5 +119,33 @@ def resultats():
     if livre:
         url_livre = f'http://127.0.0.1:5001/utilisateur/emprunts/{utilisateur}'
 
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        response = requests.post(
+            "http://127.0.0.1:5002/token",
+            data={"username": username, "password": password},
+        )
+        if response.status_code == 200:
+            token = response.json()["access_token"]
+            session["token"] = token
+            return redirect("/")
+        else:
+            return "Invalid credentials", 401
+    return render_template("login.j2")
+
+def get_auth_headers():
+    token = session.get("token")
+    if not token:
+        return None
+    return {"Authorization": f"Bearer {token}"}
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+

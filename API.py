@@ -1,7 +1,9 @@
 from flask import Flask, render_template, jsonify, request, abort
 import sqlite3
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import JSONResponse
+import requests
 import uvicorn
 import os
 
@@ -30,9 +32,26 @@ app = FastAPI()
 
 database = './database.db'
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+#Verif du token
+#Verif du token
+def verify_token_external(token: str):
+    try:
+        response = requests.get(f"http://127.0.0.1:5002/verify", headers={"Authorization": f"Bearer {token}"})
+
+        response.raise_for_status()  # Lève une exception si la réponse n'est pas 200
+        return response.json()["username"]
+    except requests.exceptions.RequestException:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
 '''Partie GET'''
 @app.get('/utilisateurs')
-async def utilisateurs():
+async def utilisateurs(token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM utilisateurs")
@@ -41,7 +60,10 @@ async def utilisateurs():
     return utilisateurs
 
 @app.get('/livres')
-async def livres():
+async def livres(token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM livres")
@@ -50,7 +72,10 @@ async def livres():
     return livres
 
 @app.get('/auteurs')
-async def auteurs():
+async def auteurs(token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM auteurs")
@@ -59,7 +84,10 @@ async def auteurs():
     return auteurs
 
 @app.get('/utilisateur/{utilisateur}')
-async def utilisateur_var(utilisateur: str):
+async def utilisateur_var(utilisateur: str, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
@@ -79,7 +107,10 @@ async def utilisateur_var(utilisateur: str):
         raise HTTPException(status_code=404, detail="utilisateur non trouvé")
 
 @app.get('/utilisateur/emprunts/{utilisateur}')
-async def utilisateur_emprunts_var(utilisateur: str):
+async def utilisateur_emprunts_var(utilisateur: str, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
@@ -102,7 +133,10 @@ async def utilisateur_emprunts_var(utilisateur: str):
         raise HTTPException(status_code=404, detail="utilisateur non trouvé")
 
 @app.get('/livres/siecle/{numero}')
-async def livres_siecle_var(numero: int):
+async def livres_siecle_var(numero: int, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     if 0 <= numero <= 21:
         start_date = (numero - 1) * 100
         end_date = numero * 100 + 99
@@ -118,7 +152,10 @@ async def livres_siecle_var(numero: int):
 
 '''Partie POST'''
 @app.post('/livres/ajouter')
-async def livres_ajouter(request: Request):
+async def livres_ajouter(request: Request, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     book = await request.json()
     if not book or not 'titre' in book:
         raise HTTPException(status_code=400, detail="Data invalide : demande un format JSON et le titre")
@@ -144,7 +181,10 @@ async def livres_ajouter(request: Request):
     return JSONResponse(content={'message': 'Livre ajouter avec succès'}, status_code=201)
 
 @app.post('/utilisateur/ajouter')
-async def utilisateur_ajouter(request: Request):
+async def utilisateur_ajouter(request: Request, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     user = await request.json()
     if not user or not 'nom' in user or not 'email' in user:
         raise HTTPException(status_code=400, detail="Data invalide : demande un format JSON, le nom et l'email")
@@ -158,7 +198,10 @@ async def utilisateur_ajouter(request: Request):
 
 '''Partie DELETE'''
 @app.delete('/utilisateur/{utilisateur}/supprimer')
-async def utilisateur_var_supprimer(utilisateur: str):
+async def utilisateur_var_supprimer(utilisateur: str, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
@@ -173,7 +216,10 @@ async def utilisateur_var_supprimer(utilisateur: str):
 
 '''Partie PUT'''
 @app.put('/utilisateur/{utilisateur_id}/emprunter/{livre_id}')
-async def utilisateur_var_emprunter_var(utilisateur_id: int, livre_id: int):
+async def utilisateur_var_emprunter_var(utilisateur_id: int, livre_id: int, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("UPDATE livres SET emprunteur_id = ? WHERE id = ?", (utilisateur_id, livre_id))
@@ -185,7 +231,10 @@ async def utilisateur_var_emprunter_var(utilisateur_id: int, livre_id: int):
     return JSONResponse(content={'message': 'Livre emprunté avec succès'})
 
 @app.put('/utilisateur/{utilisateur_id}/rendre/{livre_id}')
-async def utilisateur_var_rendre_var(utilisateur_id: int, livre_id: int):
+async def utilisateur_var_rendre_var(utilisateur_id: int, livre_id: int, token: str = Depends(oauth2_scheme)):
+    verify_token_external(token)
+    print("Token Valide")
+
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
     cursor.execute("UPDATE livres SET emprunteur_id = NULL WHERE id = ? AND emprunteur_id = ?", (livre_id, utilisateur_id))
