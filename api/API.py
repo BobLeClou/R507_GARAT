@@ -37,7 +37,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 #Verif du token
 def verify_token_external(token: str):
     try:
-        response = requests.get(f"http://127.0.0.1:5002/verify", headers={"Authorization": f"Bearer {token}"})
+        response = requests.get(f"http://authenticator:5002/verify", headers={"Authorization": f"Bearer {token}"})
 
         response.raise_for_status()  # Lève une exception si la réponse n'est pas 200
         return response.json()["username"]

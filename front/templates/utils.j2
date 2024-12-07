@@ -36,6 +36,11 @@
             </li>
             {% endfor %}
         </ul>
+        {% if session.get('token') %}
+        <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger">Déconnexion</button>
+        </form>
+        {% endif %}
     </div>  
 </nav>
 {% endmacro %}

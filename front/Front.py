@@ -21,7 +21,7 @@ def rechercher():
 
     variable = request.args.get('type')
 
-    url = f'http://127.0.0.1:5001/{variable}'
+    url = f'http://api:5001/{variable}'
     response = requests.get(url, headers=headers)
     return render_template('rechercher.j2', name=variable, result=response.json())
        
@@ -46,7 +46,7 @@ def ajouter():
         type = request.form.get('type')
         print(type)
         if type == "utilisateurs":
-            url = 'http://127.0.0.1:5001/utilisateur/ajouter'
+            url = 'http://api:5001/utilisateur/ajouter'
             nom = request.form.get('nom')
             email = request.form.get('email')
             data = {
@@ -63,7 +63,7 @@ def ajouter():
                 return f"Erreur lors de l'ajout : {response.json()}", response.status_code
 
         elif type == "livres":
-            url = 'http://127.0.0.1:5001/livres/ajouter'
+            url = 'http://api:5001/livres/ajouter'
             titre = request.form.get('titre')
             pitch = request.form.get('pitch')
             nom_auteur = request.form.get('nom_auteur')
@@ -86,7 +86,7 @@ def ajouter():
             else:
                 return f"Erreur lors de l'ajout du livre : {response.json()}", response.status_code
         elif type == "auteurs":
-            url = 'http://127.0.0.1:5001/auteur'
+            url = 'http://api:5001/auteur'
         else:
             return "Type non supporté", 400
 
@@ -103,7 +103,7 @@ def resultats():
     livre = request.form.get("livres")
 
     if utilisateur:
-        url_utilisateur = f'http://127.0.0.1:5001/utilisateur/emprunts/{utilisateur}'
+        url_utilisateur = f'http://api:5001/utilisateur/emprunts/{utilisateur}'
 
         try:
             response = requests.get(url_utilisateur, headers=headers)
@@ -117,7 +117,7 @@ def resultats():
         except:
             abort(400, description="Erreur")
     if livre:
-        url_livre = f'http://127.0.0.1:5001/utilisateur/emprunts/{utilisateur}'
+        url_livre = f'http://api:5001/utilisateur/emprunts/{utilisateur}'
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -126,7 +126,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         response = requests.post(
-            "http://127.0.0.1:5002/token",
+            "http://authenticator:5002/token",
             data={"username": username, "password": password},
         )
         if response.status_code == 200:
@@ -136,6 +136,12 @@ def login():
         else:
             return "Invalid credentials", 401
     return render_template("login.j2")
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    # Supprime le token de la session
+    session.pop('token', None)
+    return redirect("/login")
 
 def get_auth_headers():
     token = session.get("token")
