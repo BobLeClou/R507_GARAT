@@ -1,0 +1,27 @@
+{% import 'utils.j2' as utils %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{{ utils.head("Resultat recherche") }}
+
+<body>
+    {{ utils.jumbotron_top("Resultat recherche") }}
+    {{ utils.navbar([{"href":"/", "name":"Accueil"}, {"href":"/test", "name":"test"}]) }}
+
+    <!-- Your content goes here -->
+    <div class="container" style="margin-top:30px">
+        <h4 style="text-align: center;">Resultat pour : {{ name }}</h4>
+        <div style="width:auto; height: 50ch; overflow-y:scroll; border: 1px solid black; padding: 10px;">
+            <ul>
+                {% for item in result %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="btn btn-primary">Retour</a>
+        </div>
+    </div>
+</body>
+</html>
